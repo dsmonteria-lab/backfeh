@@ -1,0 +1,90 @@
+2026-05-28 22:16:14 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:17 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:18 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:18 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:18 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:19 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:19 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:19 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:19 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:20 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:44 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:45 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:45 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:46 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:46 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:46 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:46 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
+2026-05-28 22:16:46 [31merror[39m: error: no existe la columna «codigo_barras»
+    at E:\proyectos\eds-francisco-el-hombre\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Product.update (E:\proyectos\eds-francisco-el-hombre\backend\src\models\Product.js:30:20)
+    at async exports.updateProduct (E:\proyectos\eds-francisco-el-hombre\backend\src\controllers\productController.js:29:28)
