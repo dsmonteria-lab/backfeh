@@ -1,4 +1,4 @@
-﻿const pool = require("../src/config/database");
+const pool = require("../src/config/database");
 const bcrypt = require("bcryptjs");
 
 const seedData = async () => {
@@ -25,13 +25,16 @@ const seedData = async () => {
       ON CONFLICT (email) DO NOTHING
     `, ["vendedor@eds.com", vendedorPassword, "Juan Pérez", "vendedor"]);
     
-    // Crear productos
-    await client.query(`
-      INSERT INTO products (nombre, tipo_combustible, costo_compra, precio_venta, stock_actual, stock_minimo)
-      VALUES 
-        ('Gasolina Corriente', 'Gasolina', 18500, 22000, 5000, 200),
-        ('ACPM', 'ACPM', 17000, 20500, 3000, 200)
-    `);
+    // Crear productos si no existen
+    const productsCheck = await client.query('SELECT COUNT(*) FROM products');
+    if (parseInt(productsCheck.rows[0].count) === 0) {
+      await client.query(`
+        INSERT INTO products (nombre, tipo_combustible, costo_compra, precio_venta, stock_actual, stock_minimo)
+        VALUES 
+          ('Gasolina Corriente', 'Gasolina', 18500, 22000, 5000, 200),
+          ('ACPM', 'ACPM', 17000, 20500, 3000, 200)
+      `);
+    }
     
     await client.query(`COMMIT`);
     console.log("Datos iniciales creados exitosamente");
