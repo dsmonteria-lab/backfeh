@@ -20,7 +20,7 @@ const createTables = async () => {
     await client.query(`CREATE TABLE IF NOT EXISTS products (
       id SERIAL PRIMARY KEY,
       nombre VARCHAR(100) NOT NULL,
-      tipo_combustible VARCHAR(50) NOT NULL CHECK (tipo_combustible IN ('Gasolina', 'ACPM')),
+      tipo_combustible VARCHAR(50) NOT NULL CHECK (tipo_combustible IN ('Combustible', 'Lubricante', 'Accesorios')),
       costo_compra DECIMAL(10, 2) NOT NULL DEFAULT 0,
       precio_venta DECIMAL(10, 2) NOT NULL DEFAULT 0,
       stock_actual DECIMAL(10, 2) DEFAULT 0,
@@ -71,6 +71,18 @@ const createTables = async () => {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
     
+    await client.query('ALTER TABLE products DROP CONSTRAINT IF EXISTS products_tipo_combustible_check');
+    await client.query(`
+      UPDATE products
+      SET tipo_combustible = 'Combustible', updated_at = CURRENT_TIMESTAMP
+      WHERE tipo_combustible IN ('Gasolina', 'ACPM')
+    `);
+    await client.query(`
+      ALTER TABLE products
+      ADD CONSTRAINT products_tipo_combustible_check
+      CHECK (tipo_combustible IN ('Combustible', 'Lubricante', 'Accesorios'))
+    `);
+
     await client.query('CREATE INDEX IF NOT EXISTS idx_sales_user_id ON sales(user_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_sales_product_id ON sales(product_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_sales_timestamp ON sales(timestamp)');

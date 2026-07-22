@@ -6,7 +6,8 @@ const createMechanicalLog = async (req, res) => {
   try {
     const { product_id, lectura_inicial, lectura_final, turno_inicio, turno_fin, observaciones } = req.body;
     
-    if (!product_id || !lectura_inicial || !lectura_final || !turno_inicio || !turno_fin) {
+    // Validamos contra undefined o null para permitir que el valor 0 sea válido
+    if (!product_id || lectura_inicial === undefined || lectura_inicial === null || lectura_final === undefined || lectura_final === null || !turno_inicio || !turno_fin) {
       return res.status(400).json({ 
         success: false, 
         message: 'Todos los campos son requeridos' 
@@ -109,8 +110,8 @@ const updateMechanicalLog = async (req, res) => {
     }
     
     const updatedLog = await MechanicalLog.update(id, {
-      lectura_inicial: lectura_inicial || log.lectura_inicial,
-      lectura_final: lectura_final || log.lectura_final,
+      lectura_inicial: lectura_inicial !== undefined ? lectura_inicial : log.lectura_inicial,
+      lectura_final: lectura_final !== undefined ? lectura_final : log.lectura_final,
       observaciones: observaciones !== undefined ? observaciones : log.observaciones
     });
     
