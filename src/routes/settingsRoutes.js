@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { getAllSettings, updateSetting } = require('../controllers/settingController');
-const { protect, authorizeRole } = require('../middleware/auth');
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 // All settings routes require admin privileges
-router.use(protect);
+router.use(authenticateToken);
 router.use(authorizeRole('admin'));
 
 router.get('/', getAllSettings);
