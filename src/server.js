@@ -11,6 +11,7 @@ const salesRoutes = require('./routes/salesRoutes');
 const mechanicalRoutes = require('./routes/mechanicalRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 const productsRoutes = require('./routes/productsRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 // Swagger
 const swaggerUi = require('swagger-ui-express');
@@ -38,6 +39,7 @@ app.use('/api/sales', salesRoutes);
 app.use('/api/mechanical', mechanicalRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/products', productsRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Swagger UI
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

@@ -1,4 +1,4 @@
-﻿const pool = require('../config/database');
+const pool = require('../config/database');
 
 class Sale {
   static async create({ user_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id }) {
@@ -44,7 +44,12 @@ class Sale {
   
   static async getDashboardStats(startDate, endDate) {
     const result = await pool.query(
-      'SELECT COUNT(*) as total_ventas, SUM(total_dinero) as total_vendido, SUM(galones) as total_galones, SUM((p.precio_venta - p.costo_compra) * s.galones) as utilidad_neta FROM sales s JOIN products p ON s.product_id = p.id WHERE s.timestamp BETWEEN $1 AND $2 AND (s.deleted IS NULL OR s.deleted = false)',
+      `SELECT COUNT(*) as total_ventas, 
+              SUM(total_dinero) as total_vendido, 
+              SUM(CASE WHEN LOWER(p.tipo_combustible) LIKE '%combustible%' OR LOWER(p.tipo_combustible) LIKE '%gasolina%' OR LOWER(p.tipo_combustible) LIKE '%acpm%' OR LOWER(p.tipo_combustible) LIKE '%diesel%' THEN s.galones ELSE 0 END) as total_galones, 
+              SUM((p.precio_venta - p.costo_compra) * s.galones) as utilidad_neta 
+       FROM sales s JOIN products p ON s.product_id = p.id 
+       WHERE s.timestamp BETWEEN $1 AND $2 AND (s.deleted IS NULL OR s.deleted = false)`,
       [startDate, endDate]
     );
     return result.rows[0];

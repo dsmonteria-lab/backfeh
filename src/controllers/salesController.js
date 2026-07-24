@@ -1,6 +1,7 @@
 const Sale = require('../models/Sale');
 const Product = require('../models/Product');
 const MechanicalLog = require('../models/MechanicalLog');
+const Setting = require('../models/Setting');
 
 // Registrar venta
 const createSale = async (req, res) => {
@@ -204,7 +205,16 @@ const getDashboardStats = async (req, res) => {
     const salesByProduct = await Sale.getSalesByProduct(start, end);
     const expenses = await require('../models/Expense').getTotalByDateRange(start, end);
     
-    const metaGalones = 1500;
+    let metaGalones = 1500;
+    try {
+      const dbMeta = await Setting.get('meta_galones');
+      if (dbMeta) {
+        metaGalones = parseFloat(dbMeta) || 1500;
+      }
+    } catch(e) {
+      console.error('Error fetching meta_galones setting:', e);
+    }
+
     const totalGalones = parseFloat(stats.total_galones) || 0;
     const progresoMeta = (totalGalones / metaGalones) * 100;
     

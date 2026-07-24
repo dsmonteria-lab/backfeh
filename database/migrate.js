@@ -99,6 +99,15 @@ const createTables = async () => {
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );`);
+
+    await client.query(`CREATE TABLE IF NOT EXISTS settings (
+      key VARCHAR(255) PRIMARY KEY,
+      value VARCHAR(255) NOT NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+    
+    await client.query(`INSERT INTO settings (key, value) VALUES ('meta_galones', '1500') ON CONFLICT (key) DO NOTHING`);
+
 await client.query('COMMIT');
     console.log('Tablas creadas exitosamente');
     
