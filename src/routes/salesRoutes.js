@@ -1,41 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const salesController = require('../controllers/salesController');
+const salesController = '../controllers/salesController'; // Ajusta si la ruta relativa es diferente en tu estructura
+const actualSalesController = require('../controllers/salesController');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 
-// Todas las rutas requieren autenticacion
+// Todas las rutas requieren autenticación obligatoria
 router.use(authenticateToken);
 
-// Registrar venta - accesible para admin y vendedor
+// Registrar venta - accesible para admin y vendedor (asociada al turno activo)
 router.post(
   '/',
   [
-    body('product_id').isInt().withMessage('ID de producto invalido'),
-    body('galones').isFloat({ min: 0 }).withMessage('Galones deben ser positivos'),
-    body('total_dinero').isFloat({ min: 0 }).withMessage('Total debe ser positivo'),
-    body('metodo_pago').isIn(['efectivo', 'tarjeta', 'movil', 'transferencia'])
+    body('product_id').isInt().withMessage('ID de producto inválido'),
+    body('galones').isFloat({ min: 0 }).withMessage('Los galones deben ser un valor positivo'),
+    body('total_dinero').isFloat({ min: 0 }).withMessage('El total en dinero debe ser positivo'),
+    body('metodo_pago').isIn(['efectivo', 'tarjeta', 'movil', 'transferencia']).withMessage('Método de pago no válido')
   ],
-  validate, salesController.createSale
+  validate, 
+  actualSalesController.createSale
 );
 
-// Obtener ventas del usuario - accesible para admin y vendedor
-router.get('/user', salesController.getUserSales);
+// Obtener ventas del usuario actual - accesible para admin y vendedor
+router.get('/user', actualSalesController.getUserSales);
 
-// Obtener todas las ventas - solo admin
-router.get('/', authorizeRole('admin'), salesController.getAllSales);
+// Obtener todas las ventas del sistema - exclusivo para administradores
+router.get('/', authorizeRole('admin'), actualSalesController.getAllSales);
 
-// Actualizar venta - solo admin
-router.put('/:id', authorizeRole('admin'), salesController.updateSale);
+// Actualizar venta - exclusivo para administradores
+router.put('/:id', authorizeRole('admin'), actualSalesController.updateSale);
 
-// Eliminar venta - solo admin
-router.delete('/:id', authorizeRole('admin'), salesController.deleteSale);
+// Eliminar venta - exclusivo para administradores
+router.delete('/:id', authorizeRole('admin'), actualSalesController.deleteSale);
 
-// Dashboard stats - solo admin
-router.get('/dashboard', authorizeRole('admin'), salesController.getDashboardStats);
+// Estadísticas de Dashboard - exclusivo para administradores
+router.get('/dashboard', authorizeRole('admin'), actualSalesController.getDashboardStats);
 
-// Proyeccion de ventas - solo admin
-router.get('/forecast', authorizeRole('admin'), salesController.getSalesForecast);
+// Proyección de ventas - exclusivo para administradores
+router.get('/forecast', authorizeRole('admin'), actualSalesController.getSalesForecast);
 
 module.exports = router;

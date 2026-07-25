@@ -2,11 +2,13 @@ const Sale = require('../models/Sale');
 const Product = require('../models/Product');
 const MechanicalLog = require('../models/MechanicalLog');
 const Setting = require('../models/Setting');
+const pool = require('../config/db'); // Importante para la consulta directa de turnos
 
-// Registrar venta
+// Registrar venta asociada al turno activo
 const createSale = async (req, res) => {
   try {
     const { product_id, galones, total_dinero, metodo_pago, dispositivo_id } = req.body;
+    const userId = req.user.id;
 
     // Use explicit null checks — values like 0 are valid and must not be rejected
     if (product_id == null || galones == null || total_dinero == null || !metodo_pago) {
@@ -26,6 +28,23 @@ const createSale = async (req, res) => {
       });
     }
     
+    // 1. Verificar que el vendedor tenga un turno abierto activo
+    const shiftQuery = `
+      SELECT id FROM shifts 
+      WHERE user_id = $1 AND status = 'abierto' 
+      ORDER BY start_time DESC LIMIT 1
+    `;
+    const shiftResult = await pool.query(shiftQuery, [userId]);
+
+    if (shiftResult.rows.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'No puedes registrar ventas sin un turno abierto.' 
+      });
+    }
+
+    const shiftId = shiftResult.rows[0].id;
+
     const product = await Product.findById(product_id);
     
     if (!product) {
@@ -38,8 +57,10 @@ const createSale = async (req, res) => {
     // Actualizar stock
     await Product.updateStock(product_id, galones);
     
+    // 2. Crear la venta incluyendo el shift_id
     const sale = await Sale.create({
-      user_id: req.user.id,
+      user_id: userId,
+      shift_id: shiftId,
       product_id,
       galones,
       total_dinero,
@@ -87,17 +108,20 @@ const getUserSales = async (req, res) => {
 // Obtener todas las ventas (solo admin)
 const getAllSales = async (req, res) => {
   try {
-    const { startDate, endDate, user_id } = req.query;
+    const { startDate, endDate, user_id, shift_id } = req.query;
     
     const start = startDate ? new Date(startDate) : new Date(new Date().setHours(0,0,0,0));
     const end = endDate ? new Date(endDate) : new Date();
     
     const sales = await Sale.getSalesByDateRange(start, end);
     
-    // Filtrar por usuario si se especifica
+    // Filtrar por usuario o por turno si se especifica
     let filteredSales = sales;
     if (user_id) {
-      filteredSales = sales.filter(s => s.user_id === parseInt(user_id));
+      filteredSales = filteredSales.filter(s => s.user_id === parseInt(user_id));
+    }
+    if (shift_id) {
+      filteredSales = filteredSales.filter(s => s.shift_id === parseInt(shift_id));
     }
     
     res.json({
@@ -130,12 +154,9 @@ const updateSale = async (req, res) => {
     
     // Si cambia el producto, ajustar stock
     if (product_id && product_id !== sale.product_id) {
-      // Devolver stock al producto anterior
       await Product.updateStock(sale.product_id, -parseFloat(sale.galones));
-      // Restar stock del nuevo producto
       await Product.updateStock(product_id, parseFloat(galones || sale.galones));
     } else if (galones && galones !== sale.galones) {
-      // Ajustar stock por diferencia de galones
       const diferencia = parseFloat(galones) - parseFloat(sale.galones);
       await Product.updateStock(sale.product_id, diferencia);
     }
@@ -175,9 +196,7 @@ const deleteSale = async (req, res) => {
       });
     }
     
-    // Devolver stock
     await Product.updateStock(sale.product_id, -parseFloat(sale.galones));
-    
     await Sale.delete(id);
     
     res.json({
