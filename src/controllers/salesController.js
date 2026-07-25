@@ -2,7 +2,7 @@ const Sale = require('../models/Sale');
 const Product = require('../models/Product');
 const MechanicalLog = require('../models/MechanicalLog');
 const Setting = require('../models/Setting');
-const pool = require('../config/db'); // Importante para la consulta directa de turnos
+const pool = require('../config/database'); // Importante para la consulta directa de turnos
 
 // Registrar venta asociada al turno activo
 const createSale = async (req, res) => {

@@ -1,4 +1,4 @@
-const pool = require('../config/db'); // Ajusta según tu conexión a la base de datos
+const pool = require('../config/database'); // Ajusta según tu conexión a la base de datos
 
 // 1. Consultar si el vendedor tiene un turno activo
 const getActiveShift = async (req, res) => {
