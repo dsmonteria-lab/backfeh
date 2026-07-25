@@ -1,10 +1,10 @@
 const pool = require('../config/database');
 
 class Sale {
-  static async create({ user_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id }) {
+  static async create({ user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id }) {
     const result = await pool.query(
-      'INSERT INTO sales (user_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [user_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id]
+      'INSERT INTO sales (user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id]
     );
     return result.rows[0];
   }

@@ -17,6 +17,16 @@ const createTables = async () => {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
     
+    await client.query(`CREATE TABLE IF NOT EXISTS shifts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id),
+      start_time TIMESTAMP NOT NULL,
+      end_time TIMESTAMP,
+      status VARCHAR(50) NOT NULL CHECK (status IN ('abierto', 'cerrado')),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+
     await client.query(`CREATE TABLE IF NOT EXISTS products (
       id SERIAL PRIMARY KEY,
       nombre VARCHAR(100) NOT NULL,
@@ -32,6 +42,7 @@ const createTables = async () => {
     await client.query(`CREATE TABLE IF NOT EXISTS sales (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL REFERENCES users(id),
+      shift_id INTEGER REFERENCES shifts(id),
       product_id INTEGER NOT NULL REFERENCES products(id),
       galones DECIMAL(10, 2) NOT NULL,
       total_dinero DECIMAL(10, 2) NOT NULL,
@@ -47,6 +58,7 @@ const createTables = async () => {
     await client.query(`CREATE TABLE IF NOT EXISTS mechanical_logs (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL REFERENCES users(id),
+      shift_id INTEGER REFERENCES shifts(id),
       product_id INTEGER NOT NULL REFERENCES products(id),
       lectura_inicial DECIMAL(10, 2) NOT NULL,
       lectura_final DECIMAL(10, 2) NOT NULL,
