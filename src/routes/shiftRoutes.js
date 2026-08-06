@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { getActiveShift, startShift, closeShift, getAllShifts } = require('../controllers/shiftController');
-const verifyToken = require('../middleware/authMiddleware');
+const { authenticateToken } = require('../middleware/auth');
 
-router.get('/', verifyToken, getAllShifts);
-router.get('/active', verifyToken, getActiveShift);
-router.post('/start', verifyToken, startShift);
-router.post('/close', verifyToken, closeShift);
+router.get('/', authenticateToken, getAllShifts);
+router.get('/active', authenticateToken, getActiveShift);
+router.post('/start', authenticateToken, startShift);
+router.post('/close', authenticateToken, closeShift);
 
 module.exports = router;
