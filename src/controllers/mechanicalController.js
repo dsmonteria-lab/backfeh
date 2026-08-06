@@ -32,6 +32,7 @@ const createMechanicalLog = async (req, res) => {
     
     const log = await MechanicalLog.create({
       user_id: req.user.id,
+      shift_id: req.body.shift_id || null,
       product_id,
       lectura_inicial,
       lectura_final,

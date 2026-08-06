@@ -5,7 +5,12 @@ require('dotenv').config();
 const connectionString = process.env.DATABASE_URL;
 
 const poolConfig = connectionString
-  ? { connectionString }
+  ? {
+      connectionString,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    }
   : {
       host: process.env.DB_HOST || 'localhost',
       port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,

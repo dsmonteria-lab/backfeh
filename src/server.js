@@ -12,6 +12,7 @@ const mechanicalRoutes = require('./routes/mechanicalRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 const productsRoutes = require('./routes/productsRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const shiftRoutes = require('./routes/shiftRoutes');
 
 // Swagger
 const swaggerUi = require('swagger-ui-express');
@@ -40,6 +41,7 @@ app.use('/api/mechanical', mechanicalRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/shifts', shiftRoutes);
 
 // Swagger UI
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

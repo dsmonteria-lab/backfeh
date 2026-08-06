@@ -105,17 +105,17 @@ const closeShift = async (req, res) => {
     const diferenciaMecanica = finalNum - lecturaInicial;
     const descuadre = Math.abs(diferenciaMecanica - ventasReportadas) > 0.1;
 
-    // Registrar en mechanical_logs
+    // Registrar en mechanical_logs (diferencia_mecanica es GENERATED ALWAYS, no se inserta)
     const insertLogQuery = `
       INSERT INTO mechanical_logs (
         user_id, shift_id, product_id, lectura_inicial, lectura_final, 
-        ventas_reportadas, diferencia_mecanica, descuadre, turno_inicio, turno_fin, observaciones
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP, $10)
+        ventas_reportadas, descuadre, turno_inicio, turno_fin, observaciones
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, $9)
       RETURNING *
     `;
     await pool.query(insertLogQuery, [
       userId, shift_id, product_id || 1, lecturaInicial, finalNum,
-      ventasReportadas, diferenciaMecanica, descuadre, shift.start_time, observaciones || null
+      ventasReportadas, descuadre, shift.start_time, observaciones || null
     ]);
 
     // Cerrar el turno en la tabla shifts
@@ -148,8 +148,26 @@ const closeShift = async (req, res) => {
   }
 };
 
+// 4. Obtener todos los turnos (para administración y filtrado)
+const getAllShifts = async (req, res) => {
+  try {
+    const query = `
+      SELECT s.*, u.nombre as vendedor_nombre 
+      FROM shifts s 
+      JOIN users u ON s.user_id = u.id 
+      ORDER BY s.start_time DESC LIMIT 100
+    `;
+    const result = await pool.query(query);
+    return res.status(200).json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("Error al obtener turnos:", error);
+    return res.status(500).json({ success: false, message: "Error interno del servidor" });
+  }
+};
+
 module.exports = {
   getActiveShift,
   startShift,
-  closeShift
-};
+  closeShift,
+  getAllShifts
+};

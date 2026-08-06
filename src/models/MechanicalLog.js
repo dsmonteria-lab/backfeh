@@ -1,10 +1,10 @@
 const pool = require('../config/database');
 
 class MechanicalLog {
-  static async create({ user_id, product_id, lectura_inicial, lectura_final, turno_inicio, turno_fin, observaciones }) {
+  static async create({ user_id, shift_id, product_id, lectura_inicial, lectura_final, turno_inicio, turno_fin, observaciones }) {
     const result = await pool.query(
-      'INSERT INTO mechanical_logs (user_id, product_id, lectura_inicial, lectura_final, turno_inicio, turno_fin, observaciones) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [user_id, product_id, lectura_inicial, lectura_final, turno_inicio, turno_fin, observaciones || '']
+      'INSERT INTO mechanical_logs (user_id, shift_id, product_id, lectura_inicial, lectura_final, turno_inicio, turno_fin, observaciones) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [user_id, shift_id || null, product_id, lectura_inicial, lectura_final, turno_inicio, turno_fin, observaciones || '']
     );
     return result.rows[0];
   }
@@ -36,15 +36,23 @@ class MechanicalLog {
   
   static async findByTurno(turno_inicio, turno_fin) {
     const result = await pool.query(
-      'SELECT ml.*, p.tipo_combustible, u.nombre FROM mechanical_logs ml JOIN products p ON ml.product_id = p.id JOIN users u ON ml.user_id = u.id WHERE ml.turno_inicio = $1 AND ml.turno_fin = $2 AND (ml.deleted IS NULL OR ml.deleted = false)',
+      'SELECT ml.*, p.tipo_combustible, u.nombre, ml.shift_id FROM mechanical_logs ml JOIN products p ON ml.product_id = p.id JOIN users u ON ml.user_id = u.id WHERE ml.turno_inicio = $1 AND ml.turno_fin = $2 AND (ml.deleted IS NULL OR ml.deleted = false)',
       [turno_inicio, turno_fin]
+    );
+    return result.rows;
+  }
+
+  static async findByShiftId(shift_id) {
+    const result = await pool.query(
+      'SELECT ml.*, p.tipo_combustible, u.nombre as vendedor FROM mechanical_logs ml JOIN products p ON ml.product_id = p.id JOIN users u ON ml.user_id = u.id WHERE ml.shift_id = $1 AND (ml.deleted IS NULL OR ml.deleted = false) ORDER BY ml.id DESC',
+      [shift_id]
     );
     return result.rows;
   }
   
   static async getAll(startDate, endDate) {
     const result = await pool.query(
-      'SELECT ml.*, p.tipo_combustible, u.nombre as vendedor FROM mechanical_logs ml JOIN products p ON ml.product_id = p.id JOIN users u ON ml.user_id = u.id WHERE ml.turno_inicio BETWEEN $1 AND $2 AND (ml.deleted IS NULL OR ml.deleted = false) ORDER BY ml.turno_inicio DESC',
+      'SELECT ml.*, p.tipo_combustible, u.nombre as vendedor, ml.shift_id FROM mechanical_logs ml JOIN products p ON ml.product_id = p.id JOIN users u ON ml.user_id = u.id WHERE ml.turno_inicio BETWEEN $1 AND $2 AND (ml.deleted IS NULL OR ml.deleted = false) ORDER BY ml.turno_inicio DESC',
       [startDate, endDate]
     );
     return result.rows;
@@ -59,7 +67,7 @@ class MechanicalLog {
 
   static async getDesCuadres(startDate, endDate) {
     const result = await pool.query(
-      'SELECT ml.*, p.tipo_combustible, u.nombre as vendedor FROM mechanical_logs ml JOIN products p ON ml.product_id = p.id JOIN users u ON ml.user_id = u.id WHERE ml.descuadre = true AND ml.turno_inicio BETWEEN $1 AND $2 AND (ml.deleted IS NULL OR ml.deleted = false) ORDER BY ml.turno_inicio DESC',
+      'SELECT ml.*, p.tipo_combustible, u.nombre as vendedor, ml.shift_id FROM mechanical_logs ml JOIN products p ON ml.product_id = p.id JOIN users u ON ml.user_id = u.id WHERE ml.descuadre = true AND ml.turno_inicio BETWEEN $1 AND $2 AND (ml.deleted IS NULL OR ml.deleted = false) ORDER BY ml.turno_inicio DESC',
       [startDate, endDate]
     );
     return result.rows;
