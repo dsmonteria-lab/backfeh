@@ -101,6 +101,9 @@ const createTables = async () => {
     await client.query('CREATE INDEX IF NOT EXISTS idx_mechanical_logs_turno ON mechanical_logs(turno_inicio, turno_fin)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_expenses_timestamp ON expenses(timestamp)');
     
+    await client.query('ALTER TABLE sales ADD COLUMN IF NOT EXISTS shift_id INTEGER REFERENCES shifts(id)');
+    await client.query('ALTER TABLE mechanical_logs ADD COLUMN IF NOT EXISTS shift_id INTEGER REFERENCES shifts(id)');
+    
     await client.query(`CREATE TABLE IF NOT EXISTS purchases (
   id SERIAL PRIMARY KEY,
   supplier VARCHAR(255) NOT NULL,
