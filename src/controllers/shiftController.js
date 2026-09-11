@@ -27,6 +27,7 @@ const getActiveShift = async (req, res) => {
 const startShift = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { lectura_inicial, product_id } = req.body;
 
     // Verificar si ya tiene un turno abierto (permite continuar desde otro dispositivo)
     const activeQuery = `
@@ -51,11 +52,27 @@ const startShift = async (req, res) => {
       RETURNING *
     `;
     const newShift = await pool.query(insertQuery, [userId]);
+    const shift = newShift.rows[0];
+
+    // Si se proveyó lectura_inicial, guardarla en mechanical_logs como registro de apertura.
+    // lectura_final = lectura_inicial (aún no se han despachado galones en este turno).
+    if (lectura_inicial !== undefined && lectura_inicial !== null && product_id) {
+      const lecturaNum = parseFloat(lectura_inicial);
+      if (!isNaN(lecturaNum)) {
+        await pool.query(
+          `INSERT INTO mechanical_logs 
+            (user_id, shift_id, product_id, lectura_inicial, lectura_final,
+             ventas_reportadas, descuadre, turno_inicio, turno_fin, observaciones)
+           VALUES ($1, $2, $3, $4, $4, 0, false, $5, $5, 'Apertura de turno')`,
+          [userId, shift.id, product_id, lecturaNum, shift.start_time]
+        );
+      }
+    }
 
     return res.status(201).json({ 
       success: true, 
       message: "Turno abierto exitosamente", 
-      data: newShift.rows[0] 
+      data: shift
     });
   } catch (error) {
     console.error("Error al abrir turno:", error);

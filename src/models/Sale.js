@@ -55,6 +55,31 @@ class Sale {
     return result.rows[0];
   }
   
+  static async getSalesByFilters(startDate, endDate, user_id = null, shift_id = null) {
+    const params = [startDate, endDate];
+    let conditions = `s.timestamp BETWEEN $1 AND $2 AND (s.deleted IS NULL OR s.deleted = false)`;
+
+    if (user_id) {
+      params.push(parseInt(user_id));
+      conditions += ` AND s.user_id = $${params.length}`;
+    }
+    if (shift_id) {
+      params.push(parseInt(shift_id));
+      conditions += ` AND s.shift_id = $${params.length}`;
+    }
+
+    const result = await pool.query(
+      `SELECT s.*, p.nombre as producto_nombre, p.tipo_combustible, p.costo_compra, p.precio_venta, u.nombre as vendedor_nombre
+       FROM sales s
+       JOIN products p ON s.product_id = p.id
+       JOIN users u ON s.user_id = u.id
+       WHERE ${conditions}
+       ORDER BY s.timestamp DESC`,
+      params
+    );
+    return result.rows;
+  }
+  
   static async getSalesByProduct(startDate, endDate) {
     const result = await pool.query(
       'SELECT p.tipo_combustible, SUM(s.galones) as galones_vendidos, SUM(s.total_dinero) as total_vendido, SUM((p.precio_venta - p.costo_compra) * s.galones) as utilidad FROM sales s JOIN products p ON s.product_id = p.id WHERE s.timestamp BETWEEN $1 AND $2 AND (s.deleted IS NULL OR s.deleted = false) GROUP BY p.tipo_combustible',

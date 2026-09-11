@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const salesController = '../controllers/salesController'; // Ajusta si la ruta relativa es diferente en tu estructura
 const actualSalesController = require('../controllers/salesController');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
 const validate = require('../middleware/validate');

@@ -113,20 +113,12 @@ const getAllSales = async (req, res) => {
     const start = startDate ? new Date(startDate) : new Date(new Date().setHours(0,0,0,0));
     const end = endDate ? new Date(endDate) : new Date();
     
-    const sales = await Sale.getSalesByDateRange(start, end);
-    
-    // Filtrar por usuario o por turno si se especifica
-    let filteredSales = sales;
-    if (user_id) {
-      filteredSales = filteredSales.filter(s => s.user_id === parseInt(user_id));
-    }
-    if (shift_id) {
-      filteredSales = filteredSales.filter(s => s.shift_id === parseInt(shift_id));
-    }
+    // Filtros opcionales se pasan directo al modelo para que la BD los aplique
+    const sales = await Sale.getSalesByFilters(start, end, user_id || null, shift_id || null);
     
     res.json({
       success: true,
-      data: filteredSales
+      data: sales
     });
   } catch (error) {
     console.error('Error obteniendo ventas:', error);
