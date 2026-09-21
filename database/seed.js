@@ -43,8 +43,33 @@ const seedData = async () => {
       `);
     }
     
+    // Crear surtidor principal y mangueras si no existen
+    const dispenserCheck = await client.query('SELECT COUNT(*) FROM dispensers');
+    if (parseInt(dispenserCheck.rows[0].count) === 0) {
+      const dispRes = await client.query(`
+        INSERT INTO dispensers (codigo, nombre, estado, created_by)
+        VALUES ('SURT-01', 'Surtidor Principal (2 Mangueras)', 'activo', 1)
+        RETURNING id
+      `);
+      const dispId = dispRes.rows[0].id;
+
+      // Buscar productos de combustible
+      const prodCorriente = await client.query("SELECT id FROM products WHERE LOWER(nombre) LIKE '%corriente%' OR LOWER(nombre) LIKE '%gasolina%' LIMIT 1");
+      const prodAcpm = await client.query("SELECT id FROM products WHERE LOWER(nombre) LIKE '%acpm%' OR LOWER(nombre) LIKE '%diesel%' LIMIT 1");
+
+      const idCorriente = prodCorriente.rows[0]?.id || 1;
+      const idAcpm = prodAcpm.rows[0]?.id || 2;
+
+      await client.query(`
+        INSERT INTO hoses (dispenser_id, posicion_codigo, product_id, identificador_contador, ultima_lectura_final_aceptada, digitos_enteros, digitos_decimales)
+        VALUES 
+          ($1, 'Manguera 1 (Gasolina Corriente)', $2, 'CONT-M1-CORRIENTE', 0.0, 6, 1),
+          ($1, 'Manguera 2 (ACPM)', $3, 'CONT-M2-ACPM', 0.0, 6, 1)
+      `, [dispId, idCorriente, idAcpm]);
+    }
+    
     await client.query(`COMMIT`);
-    console.log("Datos iniciales creados exitosamente");
+    console.log("Datos iniciales y surtidores creados exitosamente");
     console.log("\nUsuarios creados:");
     console.log("  Admin: admin@eds.com / admin123");
     console.log("  Vendedor: vendedor@eds.com / vendedor123");

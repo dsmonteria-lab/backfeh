@@ -7,8 +7,20 @@ const pool = require('../config/database'); // Importante para la consulta direc
 // Registrar venta asociada al turno activo
 const createSale = async (req, res) => {
   try {
-    const { product_id, galones, total_dinero, metodo_pago, dispositivo_id } = req.body;
+    const { product_id, galones, total_dinero, metodo_pago, dispositivo_id, dispenser_id, hose_id, uuid_offline } = req.body;
     const userId = req.user.id;
+
+    // Prevención de duplicados mediante uuid_offline
+    if (uuid_offline) {
+      const existing = await Sale.findByUuidOffline(uuid_offline);
+      if (existing) {
+        return res.status(200).json({
+          success: true,
+          message: 'Venta ya procesada previamente (Sincronización dupliada ignorada)',
+          data: existing
+        });
+      }
+    }
 
     // Use explicit null checks — values like 0 are valid and must not be rejected
     if (product_id == null || galones == null || total_dinero == null || !metodo_pago) {
@@ -53,11 +65,71 @@ const createSale = async (req, res) => {
         message: 'Producto no encontrado' 
       });
     }
-    
+
+    const tipoProd = (product.tipo_combustible || '').toLowerCase();
+    const esCombustible = ['combustible', 'gasolina', 'acpm', 'diesel'].some(t => tipoProd.includes(t));
+
+    let openingId = null;
+    let validatedDispenserId = dispenser_id || null;
+    let validatedHoseId = hose_id || null;
+
+    // VALIDACIÓN ESTRICTA PARA COMBUSTIBLES
+    if (esCombustible) {
+      if (!validatedDispenserId || !validatedHoseId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Venta rechazada: Para productos de combustible debe seleccionar un surtidor y una manguera activas.'
+        });
+      }
+
+      // Verificar surtidor
+      const dispenserRes = await pool.query('SELECT * FROM dispensers WHERE id = $1', [validatedDispenserId]);
+      if (dispenserRes.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Surtidor no encontrado' });
+      }
+      const dispenser = dispenserRes.rows[0];
+      if (dispenser.estado !== 'activo') {
+        return res.status(400).json({
+          success: false,
+          message: `Venta rechazada: El surtidor ${dispenser.codigo} está en estado '${dispenser.estado}'.`
+        });
+      }
+
+      // Verificar manguera
+      const hoseRes = await pool.query('SELECT * FROM hoses WHERE id = $1 AND dispenser_id = $2', [validatedHoseId, validatedDispenserId]);
+      if (hoseRes.rows.length === 0) {
+        return res.status(400).json({ success: false, message: 'La manguera seleccionada no pertenece al surtidor' });
+      }
+      const hose = hoseRes.rows[0];
+      if (hose.estado !== 'activa') {
+        return res.status(400).json({ success: false, message: `Venta rechazada: La manguera ${hose.posicion_codigo} está '${hose.estado}'.` });
+      }
+
+      if (Number(hose.product_id) !== Number(product_id)) {
+        return res.status(400).json({
+          success: false,
+          message: `Venta rechazada: El producto de la venta no coincide con el producto asignado a la manguera ${hose.posicion_codigo}.`
+        });
+      }
+
+      // Verificar apertura activa del surtidor
+      const openingRes = await pool.query(
+        "SELECT id FROM dispenser_openings WHERE dispenser_id = $1 AND estado = 'abierta' ORDER BY fecha_apertura DESC LIMIT 1",
+        [validatedDispenserId]
+      );
+      if (openingRes.rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Venta rechazada: El surtidor ${dispenser.codigo} no tiene una apertura mecánica activa.`
+        });
+      }
+      openingId = openingRes.rows[0].id;
+    }
+
     // Actualizar stock
     await Product.updateStock(product_id, galones);
     
-    // 2. Crear la venta incluyendo el shift_id
+    // Crear la venta
     const sale = await Sale.create({
       user_id: userId,
       shift_id: shiftId,
@@ -65,7 +137,11 @@ const createSale = async (req, res) => {
       galones,
       total_dinero,
       metodo_pago,
-      dispositivo_id: dispositivo_id || 'web'
+      dispositivo_id: dispositivo_id || 'web',
+      dispenser_id: validatedDispenserId,
+      hose_id: validatedHoseId,
+      opening_id: openingId,
+      uuid_offline
     });
     
     res.status(201).json({

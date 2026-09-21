@@ -1,11 +1,19 @@
 const pool = require('../config/database');
 
 class Sale {
-  static async create({ user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id }) {
+  static async create({ user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id, dispenser_id, hose_id, opening_id, uuid_offline }) {
     const result = await pool.query(
-      'INSERT INTO sales (user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id]
+      `INSERT INTO sales (user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id, dispenser_id, hose_id, opening_id, uuid_offline)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       RETURNING *`,
+      [user_id, shift_id, product_id, galones, total_dinero, metodo_pago, dispositivo_id, dispenser_id || null, hose_id || null, opening_id || null, uuid_offline || null]
     );
+    return result.rows[0];
+  }
+
+  static async findByUuidOffline(uuid_offline) {
+    if (!uuid_offline) return null;
+    const result = await pool.query('SELECT * FROM sales WHERE uuid_offline = $1', [uuid_offline]);
     return result.rows[0];
   }
   
