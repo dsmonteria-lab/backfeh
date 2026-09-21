@@ -182,9 +182,63 @@ const getAllShifts = async (req, res) => {
   }
 };
 
+// 5. Admin cierra forzosamente cualquier turno abierto
+const adminCloseShift = async (req, res) => {
+  try {
+    if (req.user.rol !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Solo un administrador puede cerrar turnos de otros usuarios' });
+    }
+
+    const { shift_id, observaciones } = req.body;
+    if (!shift_id) {
+      return res.status(400).json({ success: false, message: 'shift_id es requerido' });
+    }
+
+    // Buscar el turno sin restricción de usuario
+    const shiftQuery = `SELECT s.*, u.nombre as vendedor_nombre FROM shifts s JOIN users u ON s.user_id = u.id WHERE s.id = $1 AND s.status = 'abierto'`;
+    const shiftResult = await pool.query(shiftQuery, [shift_id]);
+
+    if (shiftResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Turno activo no encontrado' });
+    }
+
+    const closeQuery = `
+      UPDATE shifts 
+      SET end_time = CURRENT_TIMESTAMP, status = 'cerrado', observaciones_admin = $1
+      WHERE id = $2
+      RETURNING *
+    `;
+    // Si la columna observaciones_admin no existe, usar solo end_time y status
+    let closedShift;
+    try {
+      closedShift = await pool.query(closeQuery, [
+        `Cerrado por administrador (${req.user.nombre || 'admin'}). ${observaciones || ''}`.trim(),
+        shift_id
+      ]);
+    } catch (colErr) {
+      // Si la columna no existe, cierre sin observaciones_admin
+      const simpleClose = await pool.query(
+        `UPDATE shifts SET end_time = CURRENT_TIMESTAMP, status = 'cerrado' WHERE id = $1 RETURNING *`,
+        [shift_id]
+      );
+      closedShift = simpleClose;
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Turno del vendedor "${shiftResult.rows[0].vendedor_nombre}" cerrado por el administrador`,
+      data: closedShift.rows[0]
+    });
+  } catch (error) {
+    console.error('Error al cerrar turno (admin):', error);
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+};
+
 module.exports = {
   getActiveShift,
   startShift,
   closeShift,
-  getAllShifts
+  getAllShifts,
+  adminCloseShift
 };

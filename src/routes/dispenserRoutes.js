@@ -10,6 +10,8 @@ router.use(authenticateToken);
 router.get('/', dispenserController.getDispensers);
 router.post('/', dispenserController.createDispenser);
 router.put('/:id', dispenserController.updateDispenser);
+router.delete('/:id', dispenserController.deleteDispenser);
+router.patch('/:id/status', dispenserController.toggleDispenserStatus);
 
 // Rutas de Mangueras / Posiciones
 router.get('/:dispenser_id/hoses', dispenserController.getHosesByDispenser);

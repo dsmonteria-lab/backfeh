@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { getActiveShift, startShift, closeShift, getAllShifts } = require('../controllers/shiftController');
+const { getActiveShift, startShift, closeShift, getAllShifts, adminCloseShift } = require('../controllers/shiftController');
 const { authenticateToken } = require('../middleware/auth');
 
 router.get('/', authenticateToken, getAllShifts);
 router.get('/active', authenticateToken, getActiveShift);
 router.post('/start', authenticateToken, startShift);
 router.post('/close', authenticateToken, closeShift);
+router.post('/admin-close', authenticateToken, adminCloseShift);
 
-module.exports = router;
+module.exports = router;
+

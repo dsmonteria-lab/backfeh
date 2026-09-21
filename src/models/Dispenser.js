@@ -11,13 +11,15 @@ class Dispenser {
     return result.rows[0];
   }
 
-  static async findAll() {
+  static async findAll(activosOnly = false) {
+    const whereClause = activosOnly ? `WHERE d.estado = 'activo'` : '';
     const result = await pool.query(
       `SELECT d.*, u.nombre as creado_por_nombre,
               COUNT(h.id)::int as total_mangueras
        FROM dispensers d
        LEFT JOIN users u ON d.created_by = u.id
        LEFT JOIN hoses h ON h.dispenser_id = d.id
+       ${whereClause}
        GROUP BY d.id, u.nombre
        ORDER BY d.id ASC`
     );
@@ -56,6 +58,22 @@ class Dispenser {
        WHERE id = $4
        RETURNING *`,
       [codigo, nombre, estado, id]
+    );
+    return result.rows[0];
+  }
+
+  static async delete(id) {
+    // Verificar si hay aperturas activas
+    const check = await pool.query(
+      `SELECT COUNT(*) FROM dispenser_openings WHERE dispenser_id = $1 AND estado = 'abierta'`,
+      [id]
+    );
+    if (parseInt(check.rows[0].count) > 0) {
+      throw new Error('No se puede eliminar el surtidor porque tiene una apertura activa. Ciérrela primero.');
+    }
+    const result = await pool.query(
+      `DELETE FROM dispensers WHERE id = $1 RETURNING *`,
+      [id]
     );
     return result.rows[0];
   }

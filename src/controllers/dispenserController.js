@@ -10,7 +10,8 @@ const pool = require('../config/database');
 
 const getDispensers = async (req, res) => {
   try {
-    const dispensers = await Dispenser.findAll();
+    const activosOnly = req.query.activos_solo === 'true';
+    const dispensers = await Dispenser.findAll(activosOnly);
     res.json({ success: true, data: dispensers });
   } catch (error) {
     console.error('Error al obtener surtidores:', error);
@@ -245,10 +246,52 @@ const getAuditLogs = async (req, res) => {
   }
 };
 
+const deleteDispenser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.user.rol !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Solo un administrador puede eliminar surtidores' });
+    }
+    const deleted = await Dispenser.delete(id);
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: 'Surtidor no encontrado' });
+    }
+    await AuditLog.log({ user_id: req.user.id, accion: 'ELIMINAR_SURTIDOR', detalles: { id } });
+    res.json({ success: true, message: 'Surtidor eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar surtidor:', error);
+    res.status(400).json({ success: false, message: error.message || 'Error al eliminar surtidor' });
+  }
+};
+
+const toggleDispenserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+    if (req.user.rol !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Solo un administrador puede cambiar el estado de un surtidor' });
+    }
+    if (!['activo', 'inactivo'].includes(estado)) {
+      return res.status(400).json({ success: false, message: 'Estado inválido. Use "activo" o "inactivo"' });
+    }
+    const updated = await Dispenser.updateStatus(id, estado);
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Surtidor no encontrado' });
+    }
+    await AuditLog.log({ user_id: req.user.id, accion: 'CAMBIAR_ESTADO_SURTIDOR', detalles: { id, estado } });
+    res.json({ success: true, message: `Surtidor ${estado === 'activo' ? 'habilitado' : 'deshabilitado'} exitosamente`, data: updated });
+  } catch (error) {
+    console.error('Error al cambiar estado del surtidor:', error);
+    res.status(500).json({ success: false, message: error.message || 'Error interno del servidor' });
+  }
+};
+
 module.exports = {
   getDispensers,
   createDispenser,
   updateDispenser,
+  deleteDispenser,
+  toggleDispenserStatus,
   getHosesByDispenser,
   createHose,
   updateHose,
