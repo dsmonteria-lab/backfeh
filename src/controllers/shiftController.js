@@ -110,7 +110,6 @@ const closeShift = async (req, res) => {
     const ventasReportadas = parseFloat(salesResult.rows[0].total_galones);
 
     // Obtener la lectura inicial del registro mecánico de este turno o del cierre anterior
-    // (Asumimos que recibes o consultas la lectura inicial con la que arrancó el turno)
     const mechanicalPrevQuery = `
       SELECT lectura_final FROM mechanical_logs 
       WHERE product_id = $1 ORDER BY created_at DESC LIMIT 1
@@ -122,7 +121,7 @@ const closeShift = async (req, res) => {
     const diferenciaMecanica = finalNum - lecturaInicial;
     const descuadre = Math.abs(diferenciaMecanica - ventasReportadas) > 0.1;
 
-    // Registrar en mechanical_logs (diferencia_mecanica es GENERATED ALWAYS, no se inserta)
+    // Registrar en mechanical_logs
     const insertLogQuery = `
       INSERT INTO mechanical_logs (
         user_id, shift_id, product_id, lectura_inicial, lectura_final, 
@@ -241,4 +240,4 @@ module.exports = {
   closeShift,
   getAllShifts,
   adminCloseShift
-};
+};

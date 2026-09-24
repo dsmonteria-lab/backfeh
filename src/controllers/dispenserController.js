@@ -271,15 +271,18 @@ const toggleDispenserStatus = async (req, res) => {
     if (req.user.rol !== 'admin') {
       return res.status(403).json({ success: false, message: 'Solo un administrador puede cambiar el estado de un surtidor' });
     }
-    if (!['activo', 'inactivo'].includes(estado)) {
-      return res.status(400).json({ success: false, message: 'Estado inválido. Use "activo" o "inactivo"' });
+    
+    // CORRECCIÓN: Alinear los estados permitidos con la base de datos de Neon
+    if (!['activo', 'cerrado', 'mantenimiento', 'bloqueado', 'pendiente_autorizacion'].includes(estado)) {
+      return res.status(400).json({ success: false, message: 'Estado inválido. Use un estado permitido por el sistema.' });
     }
+    
     const updated = await Dispenser.updateStatus(id, estado);
     if (!updated) {
       return res.status(404).json({ success: false, message: 'Surtidor no encontrado' });
     }
     await AuditLog.log({ user_id: req.user.id, accion: 'CAMBIAR_ESTADO_SURTIDOR', detalles: { id, estado } });
-    res.json({ success: true, message: `Surtidor ${estado === 'activo' ? 'habilitado' : 'deshabilitado'} exitosamente`, data: updated });
+    res.json({ success: true, message: `Estado del surtidor actualizado a ${estado} exitosamente`, data: updated });
   } catch (error) {
     console.error('Error al cambiar estado del surtidor:', error);
     res.status(500).json({ success: false, message: error.message || 'Error interno del servidor' });

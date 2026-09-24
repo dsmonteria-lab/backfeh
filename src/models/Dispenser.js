@@ -38,17 +38,19 @@ class Dispenser {
   }
 
   static async updateStatus(id, estado) {
+    const estadoMinuscula = estado ? estado.toLowerCase() : null;
     const result = await pool.query(
       `UPDATE dispensers
        SET estado = $1, updated_at = CURRENT_TIMESTAMP
        WHERE id = $2
        RETURNING *`,
-      [estado, id]
+      [estadoMinuscula, id]
     );
     return result.rows[0];
   }
 
   static async update(id, { codigo, nombre, estado }) {
+    const estadoMinuscula = estado ? estado.toLowerCase() : null;
     const result = await pool.query(
       `UPDATE dispensers
        SET codigo = COALESCE($1, codigo),
@@ -57,7 +59,7 @@ class Dispenser {
            updated_at = CURRENT_TIMESTAMP
        WHERE id = $4
        RETURNING *`,
-      [codigo, nombre, estado, id]
+      [codigo, nombre, estadoMinuscula, id]
     );
     return result.rows[0];
   }
